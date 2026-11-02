@@ -38,10 +38,22 @@ export async function buildApp(config?: AppConfig) {
 
   // Auto-migration: apply pending migrations on startup (production-safe)
   if (cfg.AUTO_MIGRATE === 'true') {
-    const applied = await migrateUp(db);
-    if (applied.length > 0) {
+    try {
+      const applied = await migrateUp(db);
+      if (applied.length > 0) {
+        // eslint-disable-next-line no-console
+        console.log(`✓ Migrations applied: ${applied.join(', ')}`);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log('✓ No pending migrations.');
+      }
+    } catch (migrationError) {
       // eslint-disable-next-line no-console
-      console.log(`Migrations applied: ${applied.join(', ')}`);
+      console.error('❌ Migration failed:', migrationError);
+      // eslint-disable-next-line no-console
+      console.error('Fix the migration and redeploy. Exiting...');
+      await db.close();
+      process.exit(1);
     }
   }
 
