@@ -1,0 +1,63 @@
+# ===========================================================================
+# Zamo Medical Platform — Docker Ignore
+# ===========================================================================
+
+# Dependencies (rebuilt in Docker)
+node_modules/
+
+# Build artifacts
+dist/
+.next/
+coverage/
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# IDE & editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Documentation (not needed in image)
+docs/
+*.md
+!README.md
+*.pdf
+*.docx
+
+# Tests (not needed in production)
+tests/
+**/*.test.ts
+**/*.itest.ts
+vitest.config.ts
+
+# CI/CD
+.github/
+
+# Secrets & keys
+*.pem
+*.key
+secrets/
+
+# Development scripts (keep migrate-cli)
+scripts/scan-secrets.mjs
+scripts/scan-medical-fields.mjs
+
+# Misc
+*.log
+massige after phese.md
+ZAMO_Steps_2_to_6_AR.pdf
+

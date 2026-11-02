@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# ZAMO-INFRA-001 acceptance criterion:
+# every check below is blocking. A failure here must prevent the merge.
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Secret scan (ZAMO-INFRA-002)
+        run: npm run scan:secrets
+
+      - name: Medical-field scan (A-48 / A-49 / DEC-014)
+        run: npm run scan:medical
+
+      - name: Unit tests (Vitest)
+        run: npm run test:unit
+
+      - name: Integration tests (node:test + PGlite)
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,50 @@
+{
+  "name": "zamo-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zamo Medical Platform - Modular Monolith",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:watch": "vitest",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
+    "scan:medical": "node scripts/scan-medical-fields.mjs",
+    "verify": "npm run typecheck && npm run lint && npm run test",
+    "test:unit": "vitest run",
+    "test:integration": "node --experimental-strip-types --test --test-concurrency=1 \"src/**/*.itest.ts\"",
+    "dev:api": "npx tsx --watch src/api/server.ts",
+    "start": "node --experimental-strip-types src/api/server.ts",
+    "migrate": "node --experimental-strip-types scripts/migrate-cli.ts",
+    "migrate:status": "node --experimental-strip-types scripts/migrate-cli.ts status"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.1",
+    "@types/pg": "^8.23.1",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "pino-pretty": "^13.0.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "fastify": "^5.12.5",
+    "pg": "^8.23.0",
+    "zod": "^3.25.76"
+  }
+}

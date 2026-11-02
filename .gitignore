@@ -1,0 +1,39 @@
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+
+# Secrets — never commit real environment files (ZAMO-INFRA-002)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Docker volumes
+pgdata/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploads (user-generated content)
+uploads/
+
+# Temporary/scratch files
+*.tmp
+*.bak
+
+# Client documents (not code)
+*.pdf
+*.docx
+massige after phese.md

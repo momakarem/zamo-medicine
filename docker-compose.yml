@@ -1,0 +1,60 @@
+# ===========================================================================
+# Zamo Medical Platform — Docker Compose (Local Development)
+#
+# Usage:
+#   docker compose up -d              # start all services
+#   docker compose logs -f app        # follow app logs
+#   docker compose down               # stop all services
+#   docker compose down -v            # stop and delete database data
+# ===========================================================================
+
+services:
+  # --- PostgreSQL Database ---
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-zamo}
+      POSTGRES_USER: ${POSTGRES_USER:-zamo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zamo -d zamo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Zamo API Application ---
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zamo}:${POSTGRES_PASSWORD:?err}@db:5432/${POSTGRES_DB:-zamo}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-to-a-random-value-at-least-32-characters-long}
+      OTP_PEPPER: ${OTP_PEPPER:-change-me-to-another-random-value-at-least-32-chars}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      AUTO_MIGRATE: "true"
+      ALLOW_MOCK_PROVIDERS: "true"
+      NOTIFICATION_ADAPTER: console
+      LLM_ADAPTER: mock
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  pgdata:
+    driver: local
+  uploads:
+    driver: local
+
