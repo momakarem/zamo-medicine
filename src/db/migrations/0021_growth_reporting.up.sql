@@ -126,6 +126,51 @@ ALTER TABLE bookings
 CREATE INDEX bookings_attribution_idx ON bookings (attribution_id) WHERE attribution_id IS NOT NULL;
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 3b. offers — العروض والخصومات
+--
+-- Tracks facility/branch promotions linked to branch_services.
+-- Referenced by v_facility_offers_report (Report 10).
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS offers (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- Scope
+  facility_id       uuid NOT NULL REFERENCES facilities(id) ON DELETE CASCADE,
+  branch_id         uuid REFERENCES branches(id) ON DELETE CASCADE,
+  branch_service_id uuid REFERENCES branch_services(id) ON DELETE CASCADE,
+
+  -- Details
+  title             text NOT NULL,
+  description       text,
+  discount_type     text NOT NULL DEFAULT 'percentage'
+                    CHECK (discount_type IN ('percentage', 'fixed')),
+  discount_value    numeric(14,2) NOT NULL CHECK (discount_value > 0),
+
+  -- Validity
+  start_date        date NOT NULL DEFAULT CURRENT_DATE,
+  end_date          date,
+
+  -- Status
+  status            text NOT NULL DEFAULT 'draft'
+                    CHECK (status IN ('draft', 'active', 'paused', 'ended', 'expired')),
+
+  -- Audit
+  created_by        uuid REFERENCES users(id),
+  created_at        timestamptz NOT NULL DEFAULT now(),
+  updated_at        timestamptz NOT NULL DEFAULT now(),
+
+  -- end_date must be >= start_date when set
+  CONSTRAINT offers_date_range CHECK (end_date IS NULL OR end_date >= start_date)
+);
+
+CREATE INDEX offers_facility_idx ON offers (facility_id);
+CREATE INDEX offers_branch_idx ON offers (branch_id) WHERE branch_id IS NOT NULL;
+CREATE INDEX offers_status_idx ON offers (status) WHERE status = 'active';
+
+CREATE TRIGGER offers_touch BEFORE UPDATE ON offers
+  FOR EACH ROW EXECUTE FUNCTION zamo_touch_updated_at();
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- 4. campaign_stats_view — القمع الكامل (ZAMO-GROW-072)
 --
 -- Full funnel: bookings → attendance → services → revenue → commission → margin

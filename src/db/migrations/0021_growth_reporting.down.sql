@@ -27,5 +27,6 @@ DROP POLICY IF EXISTS attr_zamo_admin ON attribution_touches;
 ALTER TABLE bookings DROP COLUMN IF EXISTS attribution_id;
 
 -- Drop tables
+DROP TABLE IF EXISTS offers;
 DROP TABLE IF EXISTS campaigns;
 DROP TABLE IF EXISTS attribution_touches;
