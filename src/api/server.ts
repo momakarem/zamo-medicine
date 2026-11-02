@@ -119,9 +119,21 @@ export async function buildApp(config?: AppConfig) {
 const isMainModule = process.argv[1]?.includes('server');
 
 if (isMainModule) {
-  const app = await buildApp();
-  const port = parseInt(process.env['PORT'] ?? '3000', 10);
+  try {
+    const app = await buildApp();
+    const port = parseInt(process.env['PORT'] ?? '3000', 10);
 
-  await app.listen({ port, host: '0.0.0.0' });
-  app.log.info(`🚀 Zamo API running on http://0.0.0.0:${port}`);
+    await app.listen({ port, host: '0.0.0.0' });
+    app.log.info(`🚀 Zamo API running on http://0.0.0.0:${port}`);
+  } catch (startupError) {
+    // eslint-disable-next-line no-console
+    console.error('❌ Failed to start server:', startupError);
+    process.exit(1);
+  }
 }
+
+// Keep process alive — catch unhandled rejections
+process.on('unhandledRejection', (reason) => {
+  // eslint-disable-next-line no-console
+  console.error('Unhandled rejection:', reason);
+});
